@@ -1,113 +1,311 @@
-## Work With Me
+# GPUOpt — PyTorch/CUDA GPU Performance Optimization
 
-I offer PyTorch/CUDA GPU performance optimization services, including:
+GPUOpt is a GPU performance optimization project focused on improving
+PyTorch inference workloads on NVIDIA GPUs.
+
+It analyzes inference workloads, evaluates safe execution strategies,
+benchmarks optimized candidates, validates numerical correctness, and
+selects the best-performing validated policy.
+
+The goal is simple:
+
+> Reduce inference latency, increase throughput, and improve GPU efficiency
+> without sacrificing model correctness.
+
+---
+
+## Benchmark Results
+
+| Model | Workload | GPU | Baseline Latency | GPUOpt Latency | Speedup | Latency Reduction |
+|---|---|---|---:|---:|---:|---:|
+| ResNet-18 | Computer Vision | NVIDIA Tesla T4 | 27.24 ms | 8.45 ms | **3.22x** | **68.97%** |
+| DistilBERT | Transformer / NLP | NVIDIA Tesla T4 | 64.02 ms | 12.13 ms | **5.28x** | **81.05%** |
+
+> Results are workload-specific and depend on the model, GPU, batch size,
+> input shape, software environment, and optimization policy.
+
+---
+
+# Case Study #1 — ResNet-18
+
+GPUOpt was first evaluated on a pretrained ResNet-18 computer-vision
+inference workload.
+
+## Test Environment
+
+- **Model:** ResNet-18
+- **GPU:** NVIDIA Tesla T4
+- **Compute Capability:** 7.5
+- **PyTorch:** 2.10.0+cu128
+- **CUDA Runtime:** 12.8
+- **Batch Size:** 32
+- **Input Shape:** `[32, 3, 224, 224]`
+
+## Selected Policy
+
+- **Accurate Policy:** `ORIGINAL_FP32`
+- **Fast Policy:** `COMPILED_FP16`
+- **Fast Precision:** FP16
+
+## Results
+
+| Metric | Original PyTorch | GPUOpt |
+|---|---:|---:|
+| Median Latency | 27.24 ms | **8.45 ms** |
+| Throughput | 1,174.8 images/s | **3,785.7 images/s** |
+| Timing CV | 0.61% | **0.49%** |
+
+### Performance Improvement
+
+- **Speedup:** 3.22x
+- **Median latency reduction:** 68.97%
+- **Top-1 agreement:** 100% on the tested batch
+- **Decision:** `CONFIRMED_IMPROVEMENT`
+
+## Numerical Validation
+
+GPUOpt validates optimized candidates before promoting them.
+
+For this workload:
+
+- RMSE: `0.005537`
+- Relative RMSE: `0.004039`
+- Mean absolute error: `0.004487`
+- Maximum absolute error: `0.019157`
+- Top-1 agreement: `100%`
+
+---
+
+# Case Study #2 — DistilBERT Transformer
+
+The second GPUOpt case study evaluates a real Transformer/NLP workload,
+demonstrating optimization beyond computer-vision models.
+
+## Test Environment
+
+- **Model:** `distilbert-base-uncased-finetuned-sst-2-english`
+- **Model Type:** Transformer / NLP
+- **GPU:** NVIDIA Tesla T4
+- **Compute Capability:** 7.5
+- **PyTorch:** 2.10.0+cu128
+- **CUDA Runtime:** 12.8
+- **GPUOpt:** 1.0.0
+- **Batch Size:** 16
+- **Sequence Length:** 128
+- **Input Shape:** `[16, 128]`
+
+## Selected Policy
+
+- **Accurate Policy:** `COMPILED_FP32`
+- **Fast Policy:** `COMPILED_FP16`
+- **Fast Precision:** FP16
+
+## Results
+
+| Metric | Original PyTorch | GPUOpt |
+|---|---:|---:|
+| Median Latency | 64.02 ms | **12.13 ms** |
+| Throughput | 249.9 samples/s | **1,318.6 samples/s** |
+| Timing CV | 3.88% | **3.48%** |
+
+### Performance Improvement
+
+- **Speedup:** 5.28x
+- **Median latency reduction:** 81.05%
+- **Throughput increase:** approximately 5.28x
+- **Top-1 agreement:** 100% on the tested batch
+- **Decision:** `CONFIRMED_IMPROVEMENT`
+
+## Numerical Validation
+
+The optimized FP16 policy was compared independently with the baseline.
+
+- RMSE: `0.000974`
+- Relative RMSE: `0.000236`
+- Mean absolute error: `0.000805`
+- Maximum absolute error: `0.001903`
+- Top-1 agreement: `100%`
+
+The optimized policy preserved the tested model predictions while
+substantially reducing measured inference latency.
+
+---
+
+# Benchmark Methodology
+
+GPUOpt performance claims are based on measured GPU execution rather than
+estimated speedups.
+
+The case studies use:
+
+- Same-session baseline and optimized measurements
+- CUDA event timing
+- GPU synchronization
+- Warm-up iterations before measurement
+- Multiple repeated timing trials
+- Randomized interleaving of baseline and optimized execution
+- Numerical-output validation
+- Prediction agreement checks
+- Performance stability analysis
+- A minimum improvement threshold before promoting an optimized policy
+
+An optimization candidate is not promoted solely because it runs
+successfully. It must also satisfy validation and performance criteria.
+
+---
+
+# What GPUOpt Optimizes
+
+GPUOpt evaluates GPU inference strategies such as:
+
+- PyTorch inference execution
+- FP32 inference
+- FP16 / mixed-precision inference
+- `torch.compile`
+- GPU execution policies
+- CUDA bottleneck analysis
+- Operation-level optimization
+- Memory efficiency
+- Batch-size behavior
+- Latency optimization
+- Throughput optimization
+- Numerical correctness
+
+GPUOpt is designed to preserve the original user model while optimized
+candidates are evaluated separately.
+
+---
+
+# Safety and Validation
+
+Performance optimization should not come at the cost of model correctness.
+
+GPUOpt therefore follows several principles:
+
+1. The original model is preserved.
+2. Optimization candidates are tested separately.
+3. Numerical outputs are compared against the baseline.
+4. Prediction agreement is checked where applicable.
+5. Performance is measured on the actual GPU.
+6. Candidates that do not provide validated improvement can be rejected.
+7. Benchmark results are reported as workload-specific rather than universal.
+
+---
+
+# Current GPUOpt Case Studies
+
+## Computer Vision
+
+**ResNet-18**
+
+- NVIDIA Tesla T4
+- 3.22x speedup
+- 68.97% lower median latency
+- 100% Top-1 agreement on the tested batch
+
+## Transformer / NLP
+
+**DistilBERT**
+
+- NVIDIA Tesla T4
+- 5.28x speedup
+- 81.05% lower median latency
+- 100% Top-1 agreement on the tested batch
+
+These two workloads demonstrate GPUOpt optimization across two different
+neural-network model families.
+
+---
+
+# GPU Optimization Services
+
+I also provide hands-on PyTorch/CUDA GPU performance optimization for AI
+and machine-learning workloads.
+
+Services include:
 
 - GPU performance audits
 - PyTorch inference optimization
 - CUDA bottleneck analysis
 - FP16 / mixed-precision evaluation
-- torch.compile testing
-- latency and throughput benchmarking
-- numerical validation
+- `torch.compile` evaluation
+- Latency optimization
+- Throughput optimization
+- GPU memory analysis
+- Reproducible before/after benchmarking
+- Numerical correctness validation
+- Deployment optimization recommendations
 
 > Available for GPU performance audits and PyTorch/CUDA optimization projects.
 
-[Hire me on Fiverr](https://www.fiverr.com/s/r3ExR5y)
-## GPUOpt Benchmarks
+## Work With Me
 
-- **ResNet-18:** 3.22x speedup on NVIDIA Tesla T4
-- **DistilBERT:** 5.28x speedup and 81.05% lower median latency on NVIDIA Tesla T4
-# GPUOpt v1.0 — ResNet-18 GPU Optimization Case Study
+[**Hire me on Fiverr**](https://www.fiverr.com/s/r3ExR5y)
 
-GPUOpt is a PyTorch GPU optimization prototype that analyzes inference workloads,
-evaluates execution strategies, validates numerical correctness, and promotes
-optimizations only when they provide a measured performance benefit.
+---
 
-# GPUOpt v1.0 - ResNet-18 Performance Case Study
+# Project Direction
 
-GPUOpt is a PyTorch GPU optimization prototype that analyzes inference workloads, evaluates execution policies, validates numerical correctness, and promotes a candidate only when it passes performance and safety checks.
+GPUOpt is being developed toward a broader GPU optimization engine capable
+of automatically analyzing AI workloads and selecting efficient execution
+strategies.
 
-## Case study
+Planned areas of development include:
 
-**Workload:** Pretrained ResNet-18 inference  
-**GPU:** NVIDIA Tesla T4 (compute capability 7.5)  
-**PyTorch:** 2.10.0+cu128  
-**CUDA:** 12.8  
-**Batch size:** 32  
-**Input shape:** `(32, 3, 224, 224)`
+- Broader Transformer support
+- LLM inference optimization
+- Additional GPU architectures
+- Automated GPU profiling
+- Kernel-level optimization
+- Improved memory analysis
+- Deployment-oriented optimization
+- Automated optimization recommendations
+- AI-assisted GPU performance engineering
 
-| Metric | Original PyTorch | GPUOpt selected |
-|---|---:|---:|
-| Median latency | 27.240 ms | 8.453 ms |
-| Throughput | 1174.8 images/s | 3785.7 images/s |
-| Precision | FP32 | FP16 |
-| Policy | ORIGINAL_FP32 | COMPILED_FP16 |
+---
 
-**Measured speedup:** **3.22x**  
-**Latency reduction:** **68.97%**  
-**Decision:** **CONFIRMED_IMPROVEMENT**
+# Technology Stack
 
-## Numerical validation
+- Python
+- PyTorch
+- CUDA
+- C++
+- NVIDIA GPUs
+- Hugging Face Transformers
+- GPU profiling
+- Mixed precision
+- `torch.compile`
+- Performance benchmarking
 
-- RMSE: `0.00553673`
-- Relative RMSE: `0.00403853`
-- Mean absolute error: `0.00448727`
-- Maximum absolute error: `0.01915741`
-- Top-1 output agreement vs FP32 baseline on the tested batch: **100%**
+---
 
-## Benchmark methodology
+# Important Note
 
-- Same GPU session for baseline and selected policy
-- CUDA-event timing
-- Warm-up before measurement
-- Randomized interleaved baseline/optimized trial order
-- 20 warm-up iterations
-- 50 repeats per trial
-- 15 trials
-- 3% minimum improvement threshold for confirmed promotion
-- Original model preserved
+Benchmark results shown in this repository apply to the specific tested
+models, inputs, hardware, software environment, and benchmark methodology.
 
-## Interpretation
+GPUOpt does **not** claim that every model will receive the same speedup.
 
-For this exact tested workload, GPUOpt reduced median latency from **27.24 ms** to **8.45 ms** and increased throughput from **1175** to **3786 images/s**.
+Actual performance depends on factors including:
 
-The measured **68.97% execution-time reduction** should not be interpreted as a guaranteed cloud-cost reduction. Real production savings depend on utilization, batching, serving architecture, memory pressure, and infrastructure pricing.
+- Model architecture
+- GPU architecture
+- Batch size
+- Input dimensions
+- Precision requirements
+- Framework version
+- CUDA version
+- Memory behavior
+- Existing workload optimization
 
-## Current v1.0 scope
+The correct optimization strategy is determined through measurement,
+profiling, validation, and benchmarking.
 
-GPUOpt v1.0 is focused on PyTorch inference optimization and safe policy selection. It is not positioned as a universal replacement for TensorRT, Triton, or mature production compilers.
-## Full Case Study
+---
 
-[View the one-page GPUOpt case study](case-study/GPUOpt_v1.0_ResNet18_Case_Study.pdf)
+# Contact
 
-## Case Study #2 — DistilBERT Transformer Optimization
+For PyTorch/CUDA GPU optimization projects:
 
-GPUOpt was evaluated on a real pretrained Transformer workload:
+[**View my GPU Optimization Service on Fiverr**](https://www.fiverr.com/s/r3ExR5y)
 
-- **Model:** `distilbert-base-uncased-finetuned-sst-2-english`
-- **GPU:** NVIDIA Tesla T4
-- **Batch size:** 16
-- **Sequence length:** 128
-- **Selected fast policy:** `COMPILED_FP16`
-
-### Results
-
-- **Baseline median latency:** 64.02 ms
-- **GPUOpt median latency:** 12.13 ms
-- **Speedup:** 5.28x
-- **Latency reduction:** 81.05%
-- **Baseline throughput:** 249.9 samples/s
-- **GPUOpt throughput:** 1,318.6 samples/s
-- **Top-1 agreement:** 100% on the tested batch
-- **Decision:** `CONFIRMED_IMPROVEMENT`
-
-### Validation
-
-The optimized policy preserved strong numerical agreement with the baseline:
-
-- RMSE: 0.000974
-- Relative RMSE: 0.000236
-- Mean absolute error: 0.000805
-- Max absolute error: 0.001903
-
-> These results are workload-specific and were measured in the same GPU session using CUDA-event timing and randomized interleaved trials.
