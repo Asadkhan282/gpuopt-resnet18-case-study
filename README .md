@@ -1,3 +1,9 @@
+# GPUOpt v1.0 — ResNet-18 GPU Optimization Case Study
+
+GPUOpt is a PyTorch GPU optimization prototype that analyzes inference workloads,
+evaluates execution strategies, validates numerical correctness, and promotes
+optimizations only when they provide a measured performance benefit.
+
 # GPUOpt v1.0 - ResNet-18 Performance Case Study
 
 GPUOpt is a PyTorch GPU optimization prototype that analyzes inference workloads, evaluates execution policies, validates numerical correctness, and promotes a candidate only when it passes performance and safety checks.
