@@ -13,6 +13,10 @@ I offer PyTorch/CUDA GPU performance optimization services, including:
 > Available for GPU performance audits and PyTorch/CUDA optimization projects.
 
 [Hire me on Fiverr](https://www.fiverr.com/s/r3ExR5y)
+## GPUOpt Benchmarks
+
+- **ResNet-18:** 3.22x speedup on NVIDIA Tesla T4
+- **DistilBERT:** 5.28x speedup and 81.05% lower median latency on NVIDIA Tesla T4
 # GPUOpt v1.0 — ResNet-18 GPU Optimization Case Study
 
 GPUOpt is a PyTorch GPU optimization prototype that analyzes inference workloads,
@@ -75,3 +79,35 @@ GPUOpt v1.0 is focused on PyTorch inference optimization and safe policy selecti
 ## Full Case Study
 
 [View the one-page GPUOpt case study](case-study/GPUOpt_v1.0_ResNet18_Case_Study.pdf)
+
+## Case Study #2 — DistilBERT Transformer Optimization
+
+GPUOpt was evaluated on a real pretrained Transformer workload:
+
+- **Model:** `distilbert-base-uncased-finetuned-sst-2-english`
+- **GPU:** NVIDIA Tesla T4
+- **Batch size:** 16
+- **Sequence length:** 128
+- **Selected fast policy:** `COMPILED_FP16`
+
+### Results
+
+- **Baseline median latency:** 64.02 ms
+- **GPUOpt median latency:** 12.13 ms
+- **Speedup:** 5.28x
+- **Latency reduction:** 81.05%
+- **Baseline throughput:** 249.9 samples/s
+- **GPUOpt throughput:** 1,318.6 samples/s
+- **Top-1 agreement:** 100% on the tested batch
+- **Decision:** `CONFIRMED_IMPROVEMENT`
+
+### Validation
+
+The optimized policy preserved strong numerical agreement with the baseline:
+
+- RMSE: 0.000974
+- Relative RMSE: 0.000236
+- Mean absolute error: 0.000805
+- Max absolute error: 0.001903
+
+> These results are workload-specific and were measured in the same GPU session using CUDA-event timing and randomized interleaved trials.
