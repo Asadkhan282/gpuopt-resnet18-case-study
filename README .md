@@ -57,3 +57,6 @@ The measured **68.97% execution-time reduction** should not be interpreted as a 
 ## Current v1.0 scope
 
 GPUOpt v1.0 is focused on PyTorch inference optimization and safe policy selection. It is not positioned as a universal replacement for TensorRT, Triton, or mature production compilers.
+## Full Case Study
+
+[View the one-page GPUOpt case study](case-study/GPUOpt_v1.0_ResNet18_Case_Study.pdf)
