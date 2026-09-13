@@ -1,11 +1,9 @@
 # GPUOpt — PyTorch/CUDA GPU Performance Optimization
 
-GPUOpt is a GPU performance optimization project focused on improving
-PyTorch inference workloads on NVIDIA GPUs.
+# GPUOpt — GPU Optimization Case Studies
 
-It analyzes inference workloads, evaluates safe execution strategies,
-benchmarks optimized candidates, validates numerical correctness, and
-selects the best-performing validated policy.
+Real-world PyTorch/CUDA GPU performance optimization benchmarks
+across computer vision, Transformer, and AI inference workloads.
 
 The goal is simple:
 
