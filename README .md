@@ -1,3 +1,16 @@
+## Work With Me
+
+I offer PyTorch/CUDA GPU performance optimization services, including:
+
+- GPU performance audits
+- PyTorch inference optimization
+- CUDA bottleneck analysis
+- FP16 / mixed-precision evaluation
+- torch.compile testing
+- latency and throughput benchmarking
+- numerical validation
+
+(https://www.fiverr.com/s/r3ExR5y)
 # GPUOpt v1.0 — ResNet-18 GPU Optimization Case Study
 
 GPUOpt is a PyTorch GPU optimization prototype that analyzes inference workloads,
